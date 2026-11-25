@@ -268,10 +268,8 @@ function drawChart() {
   add("text", { class: "note", x: narrow ? x(best.mb) - 12 : x(55), y: oy - 8, "text-anchor": narrow ? "end" : "start" },
       narrow ? `${times}× the parameters` : `The only model above this accuracy has more than ${times} times the parameters`);
   const vy = y(narrow ? 52 : 50);
-  if (narrow) {
-    add("text", { class: "note", x: ox + 8, y: vy }, "no other model");
-    add("text", { class: "note", x: ox + 8, y: vy + 16 }, "reported at this size");
-  } else add("text", { class: "note", x: ox + 8, y: vy }, "No other model has been reported at this size");
+  add("text", { class: "note", x: ox + 8, y: vy }, narrow ? "no other model" : "No other model has");
+  add("text", { class: "note", x: ox + 8, y: vy + 17 }, narrow ? "reported at this size" : "been reported at this size");
 
   const tip = $("tooltip");
   for (const model of [...MODELS].reverse()) {
@@ -315,3 +313,10 @@ drawTable();
 let pending;
 addEventListener("resize", () => { clearTimeout(pending); pending = setTimeout(drawChart, 120); });
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { drawWeights(); drawChart(); });
+
+// copying the citation
+$("copy").onclick = async () => {
+  await navigator.clipboard.writeText($("bibtex").textContent);
+  $("copy").textContent = "Copied";
+  setTimeout(() => ($("copy").textContent = "Copy"), 1600);
+};
