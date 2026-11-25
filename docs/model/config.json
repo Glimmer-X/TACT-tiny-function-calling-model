@@ -1,0 +1,9 @@
+{
+ "vocab": 4096,
+ "d": 512,
+ "heads": 8,
+ "enc_iters": 6,
+ "dec_iters": 4,
+ "ffn_mult": 2,
+ "act_bits": 8
+}

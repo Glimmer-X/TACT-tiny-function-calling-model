@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TACT: a 2.39 MB language model for function calling</title>
+<meta name="description" content="TACT reads a request and the list of functions a device offers, and returns the function calls. 7.4 million parameters, 2.39 MB, more accurate than open models up to 700 times its size.">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 3'%3E%3Crect width='3' height='3' fill='%23faf9f6'/%3E%3Crect width='1' height='1' fill='%23e8612c'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23161614'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23e8612c'/%3E%3Crect x='2' width='1' height='1' fill='%23161614'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="#">TACT</a>
+  <nav>
+    <a href="#demo">Demo</a>
+    <a href="#results">Results</a>
+    <a href="#design">Design</a>
+    <a href="#use">Use</a>
+    <a class="out" href="https://github.com/Glimmer-X/TACT-tiny-function-calling-model">GitHub</a>
+  </nav>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="hero-text">
+    <p class="eyebrow">Ternary Action-Calling Transformer</p>
+    <h1>A language model for function calling in <span class="mark">2.39&nbsp;MB</span></h1>
+    <p class="lede">TACT reads a request in plain language and the list of functions a device offers, and returns the calls that carry the request out. It is more accurate than open models up to 700 times its size.</p>
+    <div class="actions">
+      <a class="button primary" href="#demo">Try it in this tab</a>
+      <a class="button" href="https://github.com/Glimmer-X/TACT-tiny-function-calling-model">Code</a>
+      <a class="button" href="https://huggingface.co/Glimmer-X/TACT-tiny-function-calling-model">Weights</a>
+    </div>
+    <dl class="stats">
+      <div><dt>Weights</dt><dd>2.39<small> MB</small></dd></div>
+      <div><dt>Parameters</dt><dd>7.4<small> million</small></dd></div>
+      <div><dt>Mean accuracy on device control</dt><dd>80.3<small> %</small></dd></div>
+    </dl>
+  </div>
+  <figure class="hero-figure">
+    <canvas id="weights" width="512" height="512" aria-label="One weight matrix of TACT drawn as 512 by 512 pixels in three tones"></canvas>
+    <figcaption>One of TACT's weight matrices at full size. 512 × 512 weights, each <span class="key neg"></span>−1, <span class="key zero"></span>0 or <span class="key pos"></span>+1.</figcaption>
+  </figure>
+</section>
+
+<section id="demo">
+  <div class="head">
+    <h2>Try it</h2>
+    <p>The model runs in this tab. It arrived with the page, and what you type stays in your browser.</p>
+  </div>
+  <div class="demo">
+    <div class="panel functions">
+      <div class="panel-head">
+        <span class="label">Device</span>
+        <div class="chips" id="devices" role="tablist"></div>
+      </div>
+      <div class="panel-head second">
+        <span class="label">Its functions</span>
+        <button class="link" id="edit" type="button">Edit</button>
+      </div>
+      <ul class="function-list" id="function-list"></ul>
+      <div class="editor" id="editor" hidden>
+        <textarea id="json" spellcheck="false" aria-label="Function list as JSON"></textarea>
+        <div class="editor-foot">
+          <span class="error" id="json-error"></span>
+          <button class="button small" id="cancel" type="button">Cancel</button>
+          <button class="button small primary" id="apply" type="button">Use this list</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel talk">
+      <span class="label">Request</span>
+      <form id="ask">
+        <input id="request" type="text" autocomplete="off" placeholder="Say what the device should do" aria-label="Request">
+        <button class="button primary" type="submit" id="run">Run</button>
+      </form>
+      <div class="chips examples" id="examples"></div>
+      <span class="label">Calls</span>
+      <div class="output" id="output" aria-live="polite"></div>
+      <p class="status" id="status">Loading the model…</p>
+    </div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="head">
+    <h2>Ten open models by size and accuracy</h2>
+    <p>Mean accuracy on four device-control test sets. TACT is the smallest by a factor of six and second in accuracy. The one model ahead of it is 1300 times larger.</p>
+  </div>
+  <div class="chart-card">
+    <div class="chart" id="chart"></div>
+    <div class="tooltip" id="tooltip" hidden></div>
+  </div>
+  <details class="numbers">
+    <summary>All numbers</summary>
+    <div class="table-wrap"><table id="table"></table></div>
+    <p class="note">Accuracy in percent. A request counts as correct when the output calls equal the reference calls in names and in every argument value. The four sets hold 2014 requests over 196 devices, and three of the sets were written independently of the training data. The numbers for TACT are the mean of three training runs.</p>
+  </details>
+</section>
+
+<section id="design">
+  <div class="head">
+    <h2>How it fits in 2.39 MB</h2>
+    <p>Three choices give the size, and the accuracy holds through all of them.</p>
+  </div>
+  <div class="cards">
+    <article>
+      <svg viewBox="0 0 200 110" role="img" aria-label="A grid of weights in three tones"><g id="ternary-art"></g></svg>
+      <h3>Ternary weights</h3>
+      <p>Every weight of every linear layer is −1, 0 or +1, stored in 2 bits. Activations use 8 bits and the embedding 4 bits.</p>
+    </article>
+    <article>
+      <svg viewBox="0 0 200 110" role="img" aria-label="One block applied repeatedly">
+        <rect class="box" x="62" y="38" width="76" height="40" rx="6"/>
+        <text class="svg-label" x="100" y="63" text-anchor="middle">one block</text>
+        <path class="wire" d="M138 58 h26 a10 10 0 0 0 10 -10 v-22 a10 10 0 0 0 -10 -10 h-128 a10 10 0 0 0 -10 10 v22 a10 10 0 0 0 10 10 h22"/>
+        <path class="arrow" d="M53 53 l8 5 l-8 5 z"/>
+        <text class="svg-num" x="100" y="100" text-anchor="middle">× 6 to read · × 4 to write</text>
+      </svg>
+      <h3>One block, reused</h3>
+      <p>The encoder is a single block applied six times and the decoder a single block applied four times. Depth costs no extra weights.</p>
+    </article>
+    <article>
+      <svg viewBox="0 0 200 110" role="img" aria-label="The function list is encoded once and the request each time">
+        <rect class="box soft" x="8" y="14" width="78" height="30" rx="6"/>
+        <text class="svg-label" x="47" y="33" text-anchor="middle">function list</text>
+        <rect class="box" x="8" y="64" width="78" height="30" rx="6"/>
+        <text class="svg-label" x="47" y="83" text-anchor="middle">request</text>
+        <path class="wire" d="M86 29 h30 v20"/><path class="wire" d="M86 79 h30 v-20"/>
+        <path class="wire" d="M116 54 h22"/><path class="arrow" d="M136 49 l8 5 l-8 5 z"/>
+        <rect class="box" x="146" y="39" width="46" height="30" rx="6"/>
+        <text class="svg-label" x="169" y="58" text-anchor="middle">calls</text>
+        <text class="svg-num" x="96" y="22" text-anchor="start">once</text>
+        <text class="svg-num" x="96" y="98" text-anchor="start">each time</text>
+      </svg>
+      <h3>The function list is read once</h3>
+      <p>TACT encodes the functions of a device separately from the request and keeps the result. A new request only costs its own few words.</p>
+    </article>
+  </div>
+  <div class="budget">
+    <div class="bar" aria-hidden="true"><span style="flex:1311"></span><span style="flex:1049"></span><span style="flex:33"></span></div>
+    <ul>
+      <li><b>1.31 MB</b> linear layers, 5.2 million ternary weights</li>
+      <li><b>1.05 MB</b> embedding of 4096 tokens, shared with the output layer</li>
+      <li><b>0.03 MB</b> normalisation gains</li>
+    </ul>
+  </div>
+</section>
+
+<section id="use">
+  <div class="head">
+    <h2>Use it</h2>
+    <p>The Python package downloads the weights on first use and runs on a CPU.</p>
+  </div>
+  <div class="code-grid">
+<pre><code><span class="c"># install</span>
+pip install git+https://github.com/Glimmer-X/TACT-tiny-function-calling-model</code></pre>
+<pre><code>import tact
+
+model = tact.load()
+device = model.bind(functions)   <span class="c"># the function list is encoded once</span>
+device("turn on the kitchen light at 40 percent")
+<span class="c"># [{'name': 'set_light', 'arguments': {'room': 'kitchen', 'state': 'on', 'brightness': 40}}]</span></code></pre>
+  </div>
+  <p class="scope">TACT is built for device control with requests in English. It returns function calls and does not hold a conversation. Code and weights are under the MIT license.</p>
+</section>
+
+<section id="paper">
+  <div class="head">
+    <h2>Paper</h2>
+  </div>
+  <p class="paper-title">TACT: A Weight-Shared Ternary Transformer Language Model for Function Calling in a Few Megabytes</p>
+  <p class="authors">Dongkun Xu, Runlong Wang, Xianpo Ni, Tughrul Arslan</p>
+<pre><code>@article{xu2026tact,
+  title  = {TACT: A Weight-Shared Ternary Transformer Language Model for Function Calling in a Few Megabytes},
+  author = {Xu, Dongkun and Wang, Runlong and Ni, Xianpo and Arslan, Tughrul},
+  year   = {2026}
+}</code></pre>
+</section>
+
+</main>
+
+<footer>
+  <span>TACT</span>
+  <a href="https://github.com/Glimmer-X/TACT-tiny-function-calling-model">GitHub</a>
+  <a href="https://huggingface.co/Glimmer-X/TACT-tiny-function-calling-model">Hugging Face</a>
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

@@ -12,6 +12,8 @@ output      [{"name": "lock_door", "arguments": {"door": "garage", "locked": tru
 
 The function list is given at run time. TACT is not tied to a fixed set of commands: a new device only needs its own list.
 
+Project page with a demo that runs in the browser: [glimmer-x.github.io/TACT-tiny-function-calling-model](https://glimmer-x.github.io/TACT-tiny-function-calling-model/)
+
 Weights: [Glimmer-X/TACT-tiny-function-calling-model](https://huggingface.co/Glimmer-X/TACT-tiny-function-calling-model) on Hugging Face.
 
 ## Use
