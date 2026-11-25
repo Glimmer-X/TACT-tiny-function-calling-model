@@ -53,7 +53,7 @@ ox, oy, bx, by = x(2.39), y(80.3), x(3100), y(86.8)
 dash = f'fill="none" stroke="{ACCENT}" stroke-width="1.25" stroke-dasharray="4 4"'
 o.append(f'<path d="M{ox} {oy} H{bx} V{by + 9}" {dash}/>')
 o.append(f'<path d="M{ox} {oy} V{B}" {dash}/>')
-o.append(text(x(55), oy - 8, "The only model above this accuracy has more than 200 times the parameters"))
+o.append(text(x(55), oy - 8, "The only model above this accuracy is 1300 times the size of TACT"))
 o.append(text(ox + 8, y(50), "No other model has"))
 o.append(text(ox + 8, y(50) + 17, "been reported at this size"))
 for name, mb, acc, place in reversed(MODELS):

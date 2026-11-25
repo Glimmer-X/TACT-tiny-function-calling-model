@@ -264,9 +264,9 @@ function drawChart() {
   const ours = MODELS[0], best = MODELS[MODELS.length - 1], ox = x(ours.mb), oy = y(ours.scores[4]);
   add("path", { class: "level", d: `M${ox} ${oy} H${x(best.mb)} V${y(best.scores[4]) + 9}` });
   add("line", { class: "level", x1: ox, x2: ox, y1: oy, y2: bottom });
-  const times = Math.floor(1540 / 7.4 / 100) * 100;   // parameters of the one model above, relative to TACT
+  const times = Math.round(best.mb / ours.mb / 100) * 100;   // size of the one model above, relative to TACT
   add("text", { class: "note", x: narrow ? x(best.mb) - 12 : x(55), y: oy - 8, "text-anchor": narrow ? "end" : "start" },
-      narrow ? `${times}× the parameters` : `The only model above this accuracy has more than ${times} times the parameters`);
+      narrow ? `${times}× the size` : `The only model above this accuracy is ${times} times the size of TACT`);
   const vy = y(narrow ? 52 : 50);
   add("text", { class: "note", x: ox + 8, y: vy }, narrow ? "no other model" : "No other model has");
   add("text", { class: "note", x: ox + 8, y: vy + 17 }, narrow ? "reported at this size" : "been reported at this size");
