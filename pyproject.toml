@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tact"
+version = "1.0.0"
+description = "TACT: a 2.39 MB function-calling language model, more accurate than open models up to 700 times its size"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.2",
+    "numpy",
+    "safetensors",
+    "sentencepiece>=0.2",
+    "huggingface_hub",
+]
+
+[tool.setuptools]
+packages = ["tact"]
