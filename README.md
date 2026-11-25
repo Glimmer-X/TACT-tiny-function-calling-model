@@ -60,7 +60,7 @@ Functions are described in the JSON Schema form used by most function-calling in
 
 Three choices give the size. All weights of the linear layers are ternary. Each stack has one block whose weights are reused at every iteration. The function list is encoded separately from the request, so the list of a device is encoded once and its encoding is reused for every request.
 
-The weight file stores the ternary values at 2 bits and the embedding at 4 bits. [tact/weights.py](tact/weights.py) reads it and [tact/model.py](tact/model.py) is the whole model.
+The whole model is in [tact/model.py](tact/model.py).
 
 ## Results
 
