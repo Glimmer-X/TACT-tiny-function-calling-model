@@ -17,6 +17,7 @@
     <a href="#results">Results</a>
     <a href="#design">Design</a>
     <a href="#use">Use</a>
+    <a href="#paper">Paper</a>
     <a class="out" href="https://github.com/Glimmer-X/TACT-tiny-function-calling-model">GitHub</a>
   </nav>
 </header>
@@ -30,6 +31,7 @@
     <p class="lede">TACT reads a request in plain language together with the list of functions a device offers and returns the calls that carry the request out. On device-control tests it is more accurate than open models up to 700 times its size.</p>
     <div class="actions">
       <a class="button primary" href="#demo">Run the demo</a>
+      <a class="button" href="https://doi.org/10.5281/zenodo.24529121">Paper</a>
       <a class="button" href="https://github.com/Glimmer-X/TACT-tiny-function-calling-model">Code</a>
       <a class="button" href="https://huggingface.co/Glimmer-X/TACT-tiny-function-calling-model">Weights</a>
     </div>
@@ -172,11 +174,26 @@ device("turn on the kitchen light at 40 percent")
   <p class="scope">TACT is built for device control with requests in English. It returns function calls and does not hold a conversation. Code and weights are under the MIT license.</p>
 </section>
 
+<section id="paper">
+  <div class="head">
+    <h2>Paper</h2>
+  </div>
+  <p class="paper-title">TACT: A Weight-Shared Ternary Transformer Language Model for Function Calling in a Few Megabytes</p>
+  <p class="authors">Dongkun Xu, Runlong Wang, Xianpo Ni, Tughrul Arslan</p>
+  <div class="actions paper-actions"><a class="button" href="https://doi.org/10.5281/zenodo.24529121">Read the preprint</a></div>
+<pre><code>@misc{xu2026tact,
+  title     = {TACT: A Weight-Shared Ternary Transformer Language Model for Function Calling in a Few Megabytes},
+  author    = {Xu, Dongkun and Wang, Runlong and Ni, Xianpo and Arslan, Tughrul},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.24529121}
+}</code></pre>
+</section>
+
 </main>
 
 <footer>
   <span>TACT</span>
-  <em>Dongkun Xu, Runlong Wang, Xianpo Ni, Tughrul Arslan</em>
   <a href="https://github.com/Glimmer-X/TACT-tiny-function-calling-model">GitHub</a>
   <a href="https://huggingface.co/Glimmer-X/TACT-tiny-function-calling-model">Hugging Face</a>
 </footer>

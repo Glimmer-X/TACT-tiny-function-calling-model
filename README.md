@@ -108,9 +108,19 @@ It takes about three minutes on a laptop CPU. A count can move by one request be
 
 TACT is built for device control with requests in English. It returns function calls and does not hold a conversation.
 
-## Authors
+## Paper
 
-Dongkun Xu, Runlong Wang, Xianpo Ni, Tughrul Arslan
+TACT: A Weight-Shared Ternary Transformer Language Model for Function Calling in a Few Megabytes. Dongkun Xu, Runlong Wang, Xianpo Ni, Tughrul Arslan. Preprint: [doi.org/10.5281/zenodo.24529121](https://doi.org/10.5281/zenodo.24529121)
+
+```bibtex
+@misc{xu2026tact,
+  title     = {TACT: A Weight-Shared Ternary Transformer Language Model for Function Calling in a Few Megabytes},
+  author    = {Xu, Dongkun and Wang, Runlong and Ni, Xianpo and Arslan, Tughrul},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.24529121}
+}
+```
 
 ## License
 

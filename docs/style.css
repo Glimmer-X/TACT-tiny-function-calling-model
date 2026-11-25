@@ -235,10 +235,11 @@ pre {
 .code-grid { display: grid; gap: 12px; }
 .scope { margin-top: 18px; font-size: 15px; color: var(--ink-2); max-width: 46em; }
 .paper-title { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; max-width: 36em; }
-.authors { margin: 6px 0 20px; color: var(--ink-2); }
+.authors { margin: 6px 0 16px; color: var(--ink-2); }
 footer { display: flex; flex-wrap: wrap; gap: 8px 22px; padding-top: 28px; padding-bottom: 48px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-3); }
 footer span { font: 600 13px var(--mono); letter-spacing: 0.12em; color: var(--ink-2); }
-footer em { font-style: normal; margin-right: auto; }
+footer span { margin-right: auto; }
+.paper-actions { margin: 0 0 20px; }
 footer a { text-decoration: none; }
 footer a:hover { color: var(--ink); }
 
