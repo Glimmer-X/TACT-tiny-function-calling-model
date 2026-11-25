@@ -1,6 +1,10 @@
 # TACT: a 2.39 MB function-calling language model, more accurate than open models up to 700 times its size
 
-TACT (Ternary Action-Calling Transformer) reads a request in natural language and the list of functions a device offers, and returns the function calls that carry out the request. It has 7.4 million parameters and its weights occupy 2.39 MB.
+TACT (Ternary Action-Calling Transformer) reads a request in plain language together with the list of functions a device offers and returns the function calls that carry the request out. It has 7.4 million parameters and its weights occupy 2.39 MB. On device-control tests it is more accurate than open models up to 700 times its size.
+
+**[Demo in the browser](https://glimmer-x.github.io/TACT-tiny-function-calling-model/)** · [Paper](https://doi.org/10.5281/zenodo.24529121) · [Weights on Hugging Face](https://huggingface.co/Glimmer-X/TACT-tiny-function-calling-model)
+
+![Mean accuracy on four device-control test sets against the size of the weights, for TACT and nine open function-calling models.](docs/chart.svg)
 
 ```
 request     lock the garage and switch off the bedroom light
@@ -10,11 +14,7 @@ output      [{"name": "lock_door", "arguments": {"door": "garage", "locked": tru
              {"name": "set_light", "arguments": {"room": "bedroom", "state": "off"}}]
 ```
 
-The function list is given at run time. TACT is not tied to a fixed set of commands: a new device only needs its own list.
-
-Project page with a demo that runs in the browser: [glimmer-x.github.io/TACT-tiny-function-calling-model](https://glimmer-x.github.io/TACT-tiny-function-calling-model/)
-
-Weights: [Glimmer-X/TACT-tiny-function-calling-model](https://huggingface.co/Glimmer-X/TACT-tiny-function-calling-model) on Hugging Face.
+The function list is given at run time, so a new device only needs its own list.
 
 ## Use
 
@@ -64,45 +64,14 @@ The weight file stores the ternary values at 2 bits and the embedding at 4 bits.
 
 ## Results
 
-Accuracy on four device-control test sets, in percent. A request counts as correct when the output calls equal the reference calls in names and in every argument value. The numbers for TACT are the mean of three training runs.
+Accuracy in percent on four device-control test sets. A request counts as correct when the output calls equal the reference calls in names and in every argument value.
 
-| Model | Parameters | Size | Held-out | Authored | External-A | External-B | Mean |
-|---|---|---|---|---|---|---|---|
-| **TACT** | 7.4M | 2.39 MB | 76.5 | 82.8 | 83.1 | 78.9 | 80.3 |
-| Needle 2 | 45M | 14 MB | 68.2 | 76.7 | 86.5 | 76.5 | 77.0 |
-| Needle 3 | 121M | 35 MB | 69.6 | 68.3 | 83.1 | 79.9 | 75.3 |
-| Needle 1 | 30M | 61 MB | 35.7 | 39.2 | 46.1 | 37.7 | 39.7 |
-| FunctionGemma 270M | 268M | 536 MB | 42.7 | 58.3 | 62.9 | 53.4 | 54.3 |
-| LFM2.5-350M | 354M | 709 MB | 53.2 | 67.5 | 77.5 | 68.1 | 66.6 |
-| Hammer2.1-0.5B | 494M | 988 MB | 65.1 | 80.8 | 83.1 | 70.1 | 74.8 |
-| Qwen3-0.6B | 752M | 1.5 GB | 60.6 | 65.0 | 57.3 | 65.2 | 62.0 |
-| Qwen3.5-0.8B | 873M | 1.7 GB | 71.7 | 84.2 | 69.7 | 77.9 | 75.9 |
-| xLAM-2-1B | 1.54B | 3.1 GB | 79.5 | 86.7 | 91.0 | 90.2 | 86.8 |
+| | Held-out | Authored | External-A | External-B | Mean |
+|---|---|---|---|---|---|
+| TACT, mean of three training runs | 76.5 | 82.8 | 83.1 | 78.9 | 80.3 |
+| The released weights | 75.1 | 83.3 | 85.4 | 78.9 | 80.7 |
 
-The four sets are in [eval_sets/](eval_sets/), one scenario per line. A scenario is the function list of one device with its requests and reference calls.
-
-| Set | Written by | Scenarios | Functions | Requests |
-|---|---|---|---|---|
-| `held_out` | DeepSeek-V4.1-Flash, set aside before training | 150 | 692 | 1601 |
-| `authored` | the authors | 12 | 51 | 120 |
-| `external_a` | Qwen3.5 | 10 | 50 | 89 |
-| `external_b` | Qwen3.8-27B | 24 | 115 | 204 |
-
-The released weights are one of the three runs. This command evaluates them:
-
-```bash
-python scripts/evaluate.py
-```
-
-```
-held_out      1203 /  1601   75.1%
-authored       100 /   120   83.3%
-external_a      76 /    89   85.4%
-external_b     161 /   204   78.9%
-mean                         80.7%
-```
-
-It takes about three minutes on a laptop CPU. A count can move by one request between machines.
+The numbers of the other nine models are on the [project page](https://glimmer-x.github.io/TACT-tiny-function-calling-model/#results) and in the paper. The four test sets are in [eval_sets/](eval_sets/), one device per line with its function list, requests and reference calls. `python scripts/evaluate.py` runs the released weights on them and takes about three minutes on a laptop CPU.
 
 ## Scope
 
