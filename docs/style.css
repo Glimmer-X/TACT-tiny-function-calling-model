@@ -100,6 +100,7 @@ section:not(.hero) { padding: 72px 0; border-top: 1px solid var(--line); }
 .head { max-width: 42em; margin-bottom: 32px; }
 h2 { font-size: clamp(24px, 3vw, 32px); line-height: 1.2; letter-spacing: -0.02em; font-weight: 650; }
 .head p { margin-top: 10px; color: var(--ink-2); font-size: 17px; }
+.label.strong { color: var(--ink); font-weight: 600; }
 .label { display: block; font: 12px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
 
 /* ---------------------------------------------------------------- demo */
@@ -137,23 +138,27 @@ h2 { font-size: clamp(24px, 3vw, 32px); line-height: 1.2; letter-spacing: -0.02e
 .talk { display: flex; flex-direction: column; }
 #ask { display: flex; gap: 8px; margin: 10px 0 10px; }
 #request {
-  flex: 1; min-width: 0; height: 46px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px;
-  background: var(--bg); color: var(--ink); font: 16px var(--sans);
+  flex: 1; min-width: 0; height: 52px; padding: 0 20px; border: 1.5px solid var(--ink); border-radius: 999px;
+  background: var(--surface); color: var(--ink); font: 17px var(--sans);
 }
 #request:focus, .editor textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
-#ask .button { height: 46px; }
+#ask .button { height: 52px; padding: 0 24px; }
 .examples { margin-bottom: 26px; }
 .examples .chip { font-size: 13px; }
-.output { margin-top: 10px; flex: 1; min-height: 132px; }
+.output { margin-top: 10px; flex: 1; min-height: 120px; }
 .call {
-  font: 15px/1.6 var(--mono); padding: 12px 14px; border-radius: 8px; background: var(--sunken);
-  margin-bottom: 8px; overflow-wrap: anywhere; border-left: 3px solid var(--accent);
+  font: 17px/1.55 var(--mono); padding: 14px 16px; border-radius: 10px; margin-bottom: 8px; overflow-wrap: anywhere;
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
 }
 .call .name { font-weight: 600; }
 .call .arg { color: var(--ink-3); }
-.call.raw { border-left-color: var(--line); color: var(--ink-2); white-space: pre-wrap; }
+.call.raw { background: var(--sunken); border-color: var(--line); color: var(--ink-2); white-space: pre-wrap; font-size: 14px; }
 .output .hint { font-size: 14px; color: var(--ink-3); }
-.status { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); font: 12px/1.6 var(--mono); color: var(--ink-3); }
+.meter { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 8px 36px; margin: 14px 0 0; padding-top: 16px; border-top: 1px solid var(--line); }
+.meter dt { font-size: 12px; color: var(--ink-3); }
+.meter dd { margin: 1px 0 0; font: 600 20px var(--mono); letter-spacing: -0.02em; }
+.meter dd small { font: 400 12px var(--sans); letter-spacing: 0; color: var(--ink-2); }
+.status { margin-top: 10px; font: 12px/1.6 var(--mono); color: var(--ink-3); }
 
 /* ---------------------------------------------------------------- chart */
 .chart-card { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 12px 8px; }
@@ -166,7 +171,13 @@ h2 { font-size: clamp(24px, 3vw, 32px); line-height: 1.2; letter-spacing: -0.02e
 .chart .name { font: 12.5px var(--sans); fill: var(--ink-2); }
 .chart .name.ours { font-weight: 650; font-size: 14px; fill: var(--ink); }
 .chart .value { font: 12px var(--mono); fill: var(--ink-3); }
-.chart .level { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 4; }
+.chart .grid.minor { opacity: 0.45; }
+.chart .grid.major { stroke: var(--ink-3); opacity: 0.45; }
+.chart .level { stroke: var(--accent); stroke-width: 1.25; stroke-dasharray: 4 4; fill: none; }
+.chart .note { font: 12.5px var(--sans); fill: var(--ink); }
+.chart .note.soft { fill: var(--ink-2); }
+.chart .better { stroke: var(--accent-text); stroke-width: 1.5; fill: none; }
+.chart .better-head { fill: var(--accent-text); }
 .chart .hit { fill: transparent; cursor: default; }
 .tooltip {
   position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); border-radius: 8px;
@@ -225,8 +236,9 @@ pre {
 .scope { margin-top: 18px; font-size: 15px; color: var(--ink-2); max-width: 46em; }
 .paper-title { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; max-width: 36em; }
 .authors { margin: 6px 0 20px; color: var(--ink-2); }
-footer { display: flex; gap: 22px; padding-top: 28px; padding-bottom: 48px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-3); }
-footer span { font: 600 13px var(--mono); letter-spacing: 0.12em; margin-right: auto; color: var(--ink-2); }
+footer { display: flex; flex-wrap: wrap; gap: 8px 22px; padding-top: 28px; padding-bottom: 48px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-3); }
+footer span { font: 600 13px var(--mono); letter-spacing: 0.12em; color: var(--ink-2); }
+footer em { font-style: normal; margin-right: auto; }
 footer a { text-decoration: none; }
 footer a:hover { color: var(--ink); }
 

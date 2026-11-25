@@ -31,11 +31,12 @@ onmessage = ({ data }) => {
     postMessage({ type: "bound", id: data.id, tokens: ids.length, ms: performance.now() - t0 });
   } else if (data.type === "ask") {
     const ids = tokenizer.encode(requestText(data.request)).slice(0, MAX_REQUEST_TOKENS);
-    const memory = concat(model.encode(ids), functionMemory), out = [];
+    const memory = concat(model.encode(ids), functionMemory), out = [], t1 = performance.now();
     model.generate(memory, 256, (tok) => {
       out.push(tok);
       postMessage({ type: "token", id: data.id, text: tokenizer.decode(out) });
     });
-    postMessage({ type: "done", id: data.id, text: tokenizer.decode(out), tokens: out.length, ms: performance.now() - t0 });
+    postMessage({ type: "done", id: data.id, text: tokenizer.decode(out), tokens: out.length + 1,
+                  ms: performance.now() - t0, writeMs: performance.now() - t1 });
   }
 };

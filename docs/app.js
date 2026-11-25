@@ -17,11 +17,11 @@ const worker = new Worker(new URL("./engine/worker.js", import.meta.url), { type
 const state = { ready: false, device: 0, functions: DEVICES[0].functions, bound: -1, job: 0, busy: false, facts: {} };
 
 function showStatus() {
-  const f = state.facts, parts = [];
-  if (f.bytes) parts.push(`model ${(f.bytes / 1e6).toFixed(2)} MB, ready in ${seconds(f.load)}`);
-  if (f.bind) parts.push(`function list read in ${seconds(f.bind)}`);
-  if (f.ask) parts.push(`answered in ${seconds(f.ask)}`);
-  $("status").textContent = parts.join(" · ") || "Loading the model…";
+  const f = state.facts, big = (v, unit) => { const d = document.createDocumentFragment(); d.append(v, el("small", "", " " + unit)); return d; };
+  $("status").textContent = f.bytes ? `model ${(f.bytes / 1e6).toFixed(2)} MB, ready in ${seconds(f.load)}` : "Loading the model…";
+  $("m-bind").replaceChildren(f.bind ? big((f.bind / 1000).toFixed(2), "s") : "–");
+  $("m-answer").replaceChildren(f.ask ? big((f.ask.ms / 1000).toFixed(2), "s") : "–");
+  $("m-speed").replaceChildren(f.ask ? big(Math.round(f.ask.tokens / f.ask.writeMs * 1000), "tokens/s") : "–");
 }
 
 function typeText(schema) {
@@ -128,7 +128,7 @@ worker.onmessage = ({ data }) => {
     if (data.id !== state.job) return;
     state.busy = false;
     $("run").disabled = false;
-    state.facts.ask = data.ms;
+    state.facts.ask = data;
     showCalls(data.text, true);
   } else if (data.type === "error") {
     $("status").textContent = "The model could not be loaded: " + data.message;
@@ -208,48 +208,81 @@ function drawWeights(sample, side) {
 // ------------------------------------------------------------------ chart
 // Where each name sits relative to its dot: [dx, dy, anchor]. Chosen so that no two names touch.
 const PLACE = {
-  "TACT": [-8, -30, "start"], "Needle 2": [0, 21, "middle"], "Needle 3": [11, 4, "start"], "Needle 1": [11, 4, "start"],
+  "Needle 2": [0, 21, "middle"], "Needle 3": [11, 4, "start"], "Needle 1": [11, 4, "start"],
   "FunctionGemma 270M": [-11, 4, "end"], "LFM2.5-350M": [-11, 4, "end"], "Hammer2.1-0.5B": [-11, 4, "end"],
   "Qwen3-0.6B": [11, 4, "start"], "Qwen3.5-0.8B": [11, 4, "start"], "xLAM-2-1B": [-11, 4, "end"],
 };
-const NARROW_NAMES = new Set(["TACT", "xLAM-2-1B", "Needle 1"]);
+const NARROW_NAMES = new Set(["Needle 1"]);
 
 function drawChart() {
-  const box = $("chart"), W = box.clientWidth, narrow = W < 560, H = narrow ? 340 : 440;
-  const m = { l: 44, r: narrow ? 16 : 28, t: 16, b: 46 };
-  const x = (mb) => m.l + (Math.log10(mb) - 0) / 4 * (W - m.l - m.r);   // 1 MB to 10 GB
-  const y = (acc) => m.t + (90 - acc) / 60 * (H - m.t - m.b);           // 30 % to 90 %
+  const box = $("chart"), W = box.clientWidth, narrow = W < 620, H = narrow ? 360 : 470;
+  const m = { l: 40, r: narrow ? 14 : 28, t: 12, b: 46 }, right = W - m.r, bottom = H - m.b;
+  const x = (mb) => m.l + Math.log10(mb) / 4 * (right - m.l);     // 1 MB to 10 GB
+  const y = (acc) => m.t + (95 - acc) / 65 * (bottom - m.t);      // 30 % to 95 %
   const ns = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(ns, "svg");
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.setAttribute("role", "img");
   svg.setAttribute("aria-label", "Mean accuracy against model size for ten open function-calling models");
-  const add = (tag, attrs, text) => {
+  const add = (tag, attrs, text, parent = svg) => {
     const e = document.createElementNS(ns, tag);
     for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
     if (text !== undefined) e.textContent = text;
-    svg.append(e);
+    parent.append(e);
     return e;
   };
+
+  // the corner of small and accurate models is tinted
+  const grad = add("linearGradient", { id: "better", x1: 0, y1: 0, x2: 0.62, y2: 1 }, undefined, add("defs", {}));
+  add("stop", { offset: 0, "stop-color": css("--accent"), "stop-opacity": 0.2 }, undefined, grad);
+  add("stop", { offset: 0.6, "stop-color": css("--accent"), "stop-opacity": 0 }, undefined, grad);
+  add("rect", { x: m.l, y: m.t, width: right - m.l, height: bottom - m.t, fill: "url(#better)", rx: 6 });
+
+  // grid: every step of the logarithmic size axis, with 10 MB, 100 MB and 1 GB drawn stronger
+  for (let d = 0; d < 4; d++)
+    for (let k = 1; k <= 9; k++) {
+      if (d === 0 && k === 1) continue;
+      const gx = x(k * 10 ** d);
+      add("line", { class: "grid " + (k === 1 ? "major" : "minor"), x1: gx, x2: gx, y1: m.t, y2: bottom });
+    }
   for (const a of [30, 40, 50, 60, 70, 80, 90]) {
-    add("line", { class: "grid", x1: m.l, x2: W - m.r, y1: y(a), y2: y(a) });
+    add("line", { class: "grid", x1: m.l, x2: right, y1: y(a), y2: y(a) });
     add("text", { class: "axis-text", x: m.l - 8, y: y(a) + 4, "text-anchor": "end" }, a);
   }
   [["1 MB", 1], ["10 MB", 10], ["100 MB", 100], ["1 GB", 1000], ["10 GB", 10000]].forEach(([label, mb], i, all) =>
-    add("text", { class: "axis-text", x: x(mb), y: H - m.b + 20, "text-anchor": i === 0 ? "start" : i === all.length - 1 ? "end" : "middle" }, label));
-  add("text", { class: "axis-title", x: W - m.r, y: H - 6, "text-anchor": "end" }, "Size of the weights, logarithmic");
-  add("text", { class: "axis-title", x: m.l, y: m.t - 4 }, "Mean accuracy, %");
+    add("text", { class: "axis-text", x: x(mb), y: bottom + 20, "text-anchor": i === 0 ? "start" : i === all.length - 1 ? "end" : "middle" }, label));
+  add("text", { class: "axis-title", x: right, y: H - 6, "text-anchor": "end" }, "Size of the weights (logarithmic)");
+  if (!narrow) add("text", { class: "axis-title", x: right - 6, y: m.t + 16, "text-anchor": "end" }, "Mean accuracy (%)");
 
-  const ours = MODELS[0];
-  add("line", { class: "level", x1: x(ours.mb), x2: W - m.r, y1: y(ours.scores[4]), y2: y(ours.scores[4]) });
+  // the direction of improvement
+  const ax = m.l + (narrow ? 34 : 46), ay = m.t + (narrow ? 34 : 44);
+  add("path", { class: "better", d: `M${ax} ${ay} L${m.l + 14} ${m.t + 14}` });
+  add("path", { class: "better-head", d: `M${m.l + 9} ${m.t + 9} l11 2 l-9 9 z` });
+  add("text", { class: "note", x: ax + 8, y: m.t + (narrow ? 20 : 24) }, "smaller and more accurate");
+
+  // the two reference lines through TACT
+  const ours = MODELS[0], best = MODELS[MODELS.length - 1], ox = x(ours.mb), oy = y(ours.scores[4]);
+  add("path", { class: "level", d: `M${ox} ${oy} H${x(best.mb)} V${y(best.scores[4]) + 9}` });
+  add("line", { class: "level", x1: ox, x2: ox, y1: oy, y2: bottom });
+  const times = Math.floor(1540 / 7.4 / 100) * 100;   // parameters of the one model above, relative to TACT
+  add("text", { class: "note", x: narrow ? x(best.mb) - 12 : x(55), y: oy - 8, "text-anchor": narrow ? "end" : "start" },
+      narrow ? `${times}× the parameters` : `The only model above this accuracy has more than ${times} times the parameters`);
+  const vy = y(narrow ? 52 : 50);
+  if (narrow) {
+    add("text", { class: "note", x: ox + 8, y: vy }, "no other model");
+    add("text", { class: "note", x: ox + 8, y: vy + 16 }, "reported at this size");
+  } else add("text", { class: "note", x: ox + 8, y: vy }, "No other model has been reported at this size");
+
   const tip = $("tooltip");
   for (const model of [...MODELS].reverse()) {
     const mine = model === ours, cx = x(model.mb), cy = y(model.scores[4]);
     add("circle", { class: "dot" + (mine ? " ours" : ""), cx, cy, r: mine ? 8 : 5.5 });
-    if (!narrow || NARROW_NAMES.has(model.name)) {
+    if (mine) {
+      add("text", { class: "name ours", x: cx + 13, y: narrow ? cy - 12 : cy + 22 }, model.name);
+      if (!narrow) add("text", { class: "value", x: cx + 13, y: cy + 38 }, `${model.size} · ${model.scores[4]} %`);
+    } else if (!narrow || NARROW_NAMES.has(model.name)) {
       const [dx, dy, anchor] = PLACE[model.name];
-      add("text", { class: "name" + (mine ? " ours" : ""), x: cx + dx, y: cy + dy, "text-anchor": anchor }, model.name);
-      if (mine) add("text", { class: "value", x: cx + dx, y: cy + dy + 17 }, `${model.size} · ${model.scores[4]} %`);
+      add("text", { class: "name", x: cx + dx, y: cy + dy, "text-anchor": anchor }, model.name);
     }
     const hit = add("circle", { class: "hit", cx, cy, r: 18, tabindex: 0 });
     const show = () => {
@@ -281,4 +314,4 @@ drawChart();
 drawTable();
 let pending;
 addEventListener("resize", () => { clearTimeout(pending); pending = setTimeout(drawChart, 120); });
-matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => drawWeights());
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { drawWeights(); drawChart(); });
